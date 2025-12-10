@@ -1,0 +1,49 @@
+from matplotlib import pyplot as plt
+import numpy as np
+
+def getOutputBit(input):
+    outputBit = {"0": 0, "1": 0}
+    for outKey in outputBit.keys():
+        for inKey in input.keys():
+            if inKey[0] == outKey:
+                outputBit[outKey] = outputBit[outKey] + input[inKey]
+    return outputBit
+
+simResultsRaw = {
+    2: {'0': 496, '1': 504},
+    4: {'0': 487, '1': 513},
+    8: {'0': 498, '1': 502},
+    16: {'0': 485, '1': 515},
+    32: {'0': 489, '1': 511}
+}
+
+realResultsRaw = {
+    2: {'0': 551, '1': 449},
+    4: {'0': 539, '1': 461},
+    8: {'0': 577, '1': 423},
+    16: {'0': 568, '1': 432},
+    32: {'0': 634, '1': 366}
+}
+
+xs = list(simResultsRaw.keys())
+simResults = []
+realResults = []
+
+for x in xs:
+    output = getOutputBit(simResultsRaw[x])
+    simResults.append(output["0"]/(output["0"]+output["1"]))
+
+    output = getOutputBit(realResultsRaw[x])
+    realResults.append(output["0"]/(output["0"]+output["1"]))
+
+plt.plot(xs, simResults, label="Simulation", color="blue")
+plt.plot(xs, realResults, label="IBM", color="red")
+plt.ylim(0, 1)
+plt.yticks(np.arange(0, 1.1, step=0.1))
+plt.grid()
+
+plt.ylabel("Probability of Measuring 0 of Teleported Bit")
+plt.xlabel("Consecutive Teleportations Performed before Measurement")
+plt.legend()
+
+plt.show()
