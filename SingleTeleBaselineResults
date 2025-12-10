@@ -1,0 +1,99 @@
+from matplotlib import pyplot as plt
+import numpy as np
+
+# Single Teleportation Test Results
+# Establish Baseline
+
+# Simulation
+simulationResults = [
+    {'011': 131, '101': 126, '010': 117, '110': 131, '111': 127, '100': 118, '000': 137, '001': 113},
+    {'110': 115, '100': 121, '000': 138, '011': 134, '111': 118, '010': 140, '101': 122, '001': 112},
+    {'010': 111, '100': 126, '110': 145, '111': 120, '001': 143, '000': 122, '101': 122, '011': 111},
+    {'011': 129, '001': 128, '110': 127, '010': 117, '111': 143, '100': 117, '000': 133, '101': 106},
+    {'100': 114, '111': 105, '110': 128, '011': 135, '101': 138, '001': 134, '010': 132, '000': 114},
+    {'010': 116, '001': 138, '111': 130, '011': 125, '000': 113, '100': 130, '101': 133, '110': 115},
+    {'010': 130, '011': 116, '110': 124, '111': 137, '000': 126, '100': 131, '001': 116, '101': 120},
+    {'010': 126, '001': 106, '111': 120, '011': 128, '000': 132, '110': 134, '100': 129, '101': 125},
+    {'111': 128, '011': 142, '010': 144, '101': 117, '000': 119, '100': 123, '001': 130, '110': 97},
+    {'010': 130, '011': 136, '111': 137, '110': 117, '000': 124, '100': 114, '101': 120, '001': 122}
+]
+
+# Real Test
+realResults = [
+    {'111': 108, '000': 134, '100': 133, '001': 138, '110': 146, '011': 103, '010': 115, '101': 123},
+    {'000': 137, '011': 115, '111': 100, '010': 134, '100': 125, '101': 129, '110': 129, '001': 131},
+    {'010': 139, '000': 118, '101': 111, '110': 143, '001': 155, '011': 109, '100': 120, '111': 105},
+    {'010': 126, '000': 125, '101': 110, '011': 125, '100': 137, '111': 114, '001': 144, '110': 119},
+    {'100': 134, '011': 103, '010': 123, '111': 109, '110': 136, '000': 135, '001': 130, '101': 130},
+    {'011': 115, '111': 105, '100': 132, '110': 142, '001': 132, '010': 134, '000': 121, '101': 119},
+    {'101': 99, '111': 114, '001': 140, '011': 95, '100': 128, '010': 131, '000': 148, '110': 145},
+    {'100': 130, '010': 120, '110': 155, '001': 129, '101': 134, '000': 129, '111': 96, '011': 107},
+    {'011': 123, '110': 136, '010': 124, '000': 147, '001': 123, '100': 136, '101': 119, '111': 92},
+    {'100': 151, '101': 134, '011': 133, '110': 130, '111': 117, '010': 107, '001': 116, '000': 112}
+]
+
+def getOutputBit(input):
+    outputBit = {"0": 0, "1": 0}
+    for outKey in outputBit.keys():
+        for inKey in input.keys():
+            if inKey[0] == outKey:
+                outputBit[outKey] = outputBit[outKey] + input[inKey]
+    return outputBit
+
+simOutputs = []
+simMeans = []
+for x in simulationResults:
+    output = getOutputBit(x)
+    simOutputs.append(output)
+    simMeans.append(output["0"]/(output["0"]+output["1"]))
+simMean = sum(simMeans)/len(simMeans)
+simVar = sum((i - simMean) ** 2 for i in simMeans) / len(simMeans)
+print("Sim")
+print("\tMean:", simMean)
+print("\tVar:", simVar)
+print("\tMax:", max(simMeans))
+print("\tMin:", min(simMeans))
+
+realOutputs = []
+realMeans = []
+for x in realResults:
+    output = getOutputBit(x)
+    realOutputs.append(output)
+    realMeans.append(output["0"]/(output["0"]+output["1"]))
+realMean = sum(realMeans)/len(realMeans)
+realVar = sum((i - realMean) ** 2 for i in realMeans) / len(realMeans)
+print("Real")
+print("\tMean:", realMean)
+print("\tVar:", realVar)
+print("\tMax:", max(realMeans))
+print("\tMin:", min(realMeans))
+
+fig = plt.figure()
+fig.suptitle("Simulated Teleportation")
+sub = fig.add_subplot(1, 1, 1)
+sub.bar(list(range(1, len(simMeans)+1)), simMeans, align='center')
+sub.set_xticks(range(1, len(simMeans)+1))
+sub.set_yticks(np.arange(0, 0.6, step=0.05))
+sub.set_xlabel("Trial")
+sub.set_ylabel("Probability of Measuring 0 of Teleported Bit")
+
+fig = plt.figure()
+fig.suptitle("Superconducting Teleportation")
+sub = fig.add_subplot(1, 1, 1)
+sub.bar(list(range(1, len(realMeans)+1)), realMeans, align='center')
+sub.set_xticks(range(1, len(realMeans)+1))
+sub.set_yticks(np.arange(0, 0.6, step=0.05))
+sub.set_xlabel("Trial")
+sub.set_ylabel("Probability of Measuring 0 of Teleported Bit")
+
+fig = plt.figure()
+fig.suptitle("Histogram Comparison")
+sub = fig.add_subplot(1, 1, 1)
+data = [simMeans, realMeans]
+labels = ["Simulated", "IBM"]
+sub.boxplot(data, manage_ticks=True, showmeans=True)
+sub.set_xticks([1, 2])
+sub.set_ylabel("Probability of Measuring 0 of Teleported Bit")
+sub.set_xticklabels(labels)
+
+plt.show()
